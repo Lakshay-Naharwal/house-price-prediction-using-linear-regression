@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangalore House Price Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="glass-container">
+        <header>
+            <h1>Bangalore Home Price Predictor</h1>
+            <p>Get accurate real estate estimates using LightGBM</p>
+        </header>
+        
+        <form id="predictionForm">
+            <div class="input-group">
+                <label for="location">Location</label>
+                <select id="location" name="location" required>
+                    <option value="" disabled selected>Select Location</option>
+                    {% for loc in locations %}
+                    <option value="{{ loc }}">{{ loc }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="total_sqft">Total Sqft Area</label>
+                    <input type="number" id="total_sqft" name="total_sqft" placeholder="e.g. 1500" required min="100">
+                </div>
+                <div class="input-group">
+                    <label for="bhk">BHK</label>
+                    <input type="number" id="bhk" name="bhk" placeholder="e.g. 2" required min="1" max="10">
+                </div>
+                <div class="input-group">
+                    <label for="bath">Bathrooms</label>
+                    <input type="number" id="bath" name="bath" placeholder="e.g. 2" required min="1" max="10">
+                </div>
+            </div>
+
+            <button type="submit" id="predictBtn">Estimate Price</button>
+        </form>
+
+        <div id="result" class="result-box hidden">
+            <h3>Estimated Price</h3>
+            <div class="price-value">₹ <span id="priceValue">0</span> Lakhs</div>
+            <p class="disclaimer">Note: Estimates are based on historical data and current market trends.</p>
+        </div>
+    </div>
+
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('predictBtn');
+            const resultBox = document.getElementById('result');
+            const priceValue = document.getElementById('priceValue');
+
+            btn.disabled = true;
+            btn.innerText = 'Calculating...';
+
+            const formData = {
+                location: document.getElementById('location').value,
+                total_sqft: document.getElementById('total_sqft').value,
+                bath: document.getElementById('bath').value,
+                bhk: document.getElementById('bhk').value
+            };
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const data = await response.json();
+                
+                if (data.price) {
+                    priceValue.innerText = data.price;
+                    resultBox.classList.remove('hidden');
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('An error occurred. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Estimate Price';
+            }
+        });
+    </script>
+</body>
+</html>
