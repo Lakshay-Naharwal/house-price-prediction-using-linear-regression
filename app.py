@@ -7,9 +7,10 @@ import os
 app = Flask(__name__)
 
 # Load model and metadata
-model_path = 'model/bangalore_house_price_model.pkl'
-metadata_path = 'model/metadata.pkl'
-locations_path = 'model/locations.json'
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, 'model', 'bangalore_house_price_model.pkl')
+metadata_path = os.path.join(script_dir, 'model', 'metadata.pkl')
+locations_path = os.path.join(script_dir, 'model', 'locations.json')
 
 if os.path.exists(model_path) and os.path.exists(metadata_path):
     model = joblib.load(model_path)

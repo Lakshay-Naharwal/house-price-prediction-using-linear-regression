@@ -1,3 +1,12 @@
+---
+title: Bangalore House Price Prediction
+emoji: 🏠
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # 🏠 Bangalore House Price Prediction
 
 A comprehensive end-to-end Machine Learning project that predicts real estate prices in Bangalore, India. This application leverages a Linear Regression model and features a modern, responsive web interface built with Flask.

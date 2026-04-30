@@ -17,7 +17,9 @@ def preprocess_sqft(x):
 
 def train():
     # 1. Load Data
-    df = pd.read_csv('data.csv')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(script_dir, 'data.csv')
+    df = pd.read_csv(data_path)
     print(f"Initial shape: {df.shape}")
 
     # 2. Data Cleaning
@@ -50,7 +52,7 @@ def train():
     df5 = remove_pps_outliers(df4)
 
     def remove_bhk_outliers(df):
-        exclude_indices = np.array([])
+        exclude_indices = []
         for location, location_df in df.groupby('location'):
             bhk_stats = {}
             for bhk, bhk_df in location_df.groupby('bhk'):
@@ -62,7 +64,7 @@ def train():
             for bhk, bhk_df in location_df.groupby('bhk'):
                 stats = bhk_stats.get(bhk - 1)
                 if stats and stats['count'] > 5:
-                    exclude_indices = np.append(exclude_indices, bhk_df[bhk_df.price_per_sqft < (stats['mean'])].index.values)
+                    exclude_indices.extend(bhk_df[bhk_df.price_per_sqft < (stats['mean'])].index.values)
         return df.drop(exclude_indices, axis='index')
 
     df6 = remove_bhk_outliers(df5)
@@ -98,7 +100,7 @@ def train():
 
     # 6. Linear Regression Model
     model = LinearRegression()
-    model.fit(X_train, y_train)
+    model.fit(X_train.values, y_train)
 
     # 7. Metrics
     def get_metrics(X, y, name):
@@ -117,21 +119,22 @@ def train():
     get_metrics(X_test, y_test, "Test")
 
     # 8. Save Model and Metadata
-    if not os.path.exists('model'):
-        os.makedirs('model')
+    model_dir = os.path.join(script_dir, 'model')
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
     
-    joblib.dump(model, 'model/bangalore_house_price_model.pkl')
+    joblib.dump(model, os.path.join(model_dir, 'bangalore_house_price_model.pkl'))
     
     # Save column info for prediction
     metadata = {
         'columns': X.columns.tolist()
     }
-    joblib.dump(metadata, 'model/metadata.pkl')
+    joblib.dump(metadata, os.path.join(model_dir, 'metadata.pkl'))
     
     # Save locations for UI
     import json
     locations = sorted(df8.location.unique().tolist())
-    with open('model/locations.json', 'w') as f:
+    with open(os.path.join(model_dir, 'locations.json'), 'w') as f:
         json.dump(locations, f)
         
     print("\nModel, metadata, and locations saved successfully")

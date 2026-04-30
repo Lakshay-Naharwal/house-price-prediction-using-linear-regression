@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="glass-container">
         <header>
             <h1>Bangalore Home Price Predictor</h1>
-            <p>Get accurate real estate estimates using LightGBM</p>
+            <p>Get accurate real estate estimates using Linear Regression</p>
         </header>
-        
+
         <form id="predictionForm">
             <div class="input-group">
                 <label for="location">Location</label>
@@ -80,7 +82,7 @@
                     body: JSON.stringify(formData)
                 });
                 const data = await response.json();
-                
+
                 if (data.price) {
                     priceValue.innerText = data.price;
                     resultBox.classList.remove('hidden');
@@ -97,4 +99,5 @@
         });
     </script>
 </body>
+
 </html>
